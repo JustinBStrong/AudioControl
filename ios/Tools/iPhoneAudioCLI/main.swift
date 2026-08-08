@@ -183,8 +183,9 @@ private final class AgentAudioCLI: NSObject {
                 toPeer: targetPeer
             ) { [weak self] error in
                 guard let error else { return }
-                DispatchQueue.main.async {
-                    self?.fail(CLIError.connection("WAV upload failed: \(error.localizedDescription)"))
+                let message = error.localizedDescription
+                Task { @MainActor in
+                    self?.fail(CLIError.connection("WAV upload failed: \(message)"))
                 }
             }
         } else {
@@ -299,41 +300,51 @@ private final class AgentAudioCLI: NSObject {
     }
 }
 
-extension AgentAudioCLI: @preconcurrency MCNearbyServiceBrowserDelegate {
-    func browser(
+extension AgentAudioCLI: MCNearbyServiceBrowserDelegate {
+    nonisolated func browser(
         _ browser: MCNearbyServiceBrowser,
         foundPeer peerID: MCPeerID,
         withDiscoveryInfo info: [String: String]?
     ) {
-        guard targetPeer == nil,
-              info?["protocol"] == String(DeveloperAudioProtocol.version) else { return }
-        targetPeer = peerID
-        browser.stopBrowsingForPeers()
-        stage = "waiting for approval on \(peerID.displayName)"
-        print("Found \(peerID.displayName). Approve the connection in the iPhone app.")
-        browser.invitePeer(peerID, to: session, withContext: nil, timeout: 45)
+        let peer = UncheckedSendableBox(peerID)
+        let discoveryInfo = info
+        Task { @MainActor [weak self] in
+            guard let self,
+                  self.targetPeer == nil,
+                  discoveryInfo?["protocol"] == String(DeveloperAudioProtocol.version) else { return }
+            self.targetPeer = peer.value
+            self.browser.stopBrowsingForPeers()
+            self.stage = "waiting for approval on \(peer.value.displayName)"
+            print("Found \(peer.value.displayName). Approve the connection in the iPhone app.")
+            self.browser.invitePeer(peer.value, to: self.session, withContext: nil, timeout: 45)
+        }
     }
 
-    func browser(
+    nonisolated func browser(
         _ browser: MCNearbyServiceBrowser,
         lostPeer peerID: MCPeerID
     ) {}
 
-    func browser(
+    nonisolated func browser(
         _ browser: MCNearbyServiceBrowser,
         didNotStartBrowsingForPeers error: Error
     ) {
-        fail(CLIError.connection("Discovery failed: \(error.localizedDescription)"))
+        let message = error.localizedDescription
+        Task { @MainActor [weak self] in
+            self?.fail(CLIError.connection("Discovery failed: \(message)"))
+        }
     }
 }
 
-extension AgentAudioCLI: @preconcurrency MCSessionDelegate {
-    func session(
+extension AgentAudioCLI: MCSessionDelegate {
+    nonisolated func session(
         _ session: MCSession,
         peer peerID: MCPeerID,
         didChange state: MCSessionState
     ) {
-        DispatchQueue.main.async { [weak self] in
+        let stateValue = state.rawValue
+        Task { @MainActor [weak self] in
+            let state = MCSessionState(rawValue: stateValue) ?? .notConnected
             switch state {
             case .connected:
                 self?.connected()
@@ -349,34 +360,44 @@ extension AgentAudioCLI: @preconcurrency MCSessionDelegate {
         }
     }
 
-    func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
-        DispatchQueue.main.async { [weak self] in self?.receive(data) }
+    nonisolated func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
+        Task { @MainActor [weak self] in self?.receive(data) }
     }
 
-    func session(
+    nonisolated func session(
         _ session: MCSession,
         didReceive stream: InputStream,
         withName streamName: String,
         fromPeer peerID: MCPeerID
     ) {}
 
-    func session(
+    nonisolated func session(
         _ session: MCSession,
         didStartReceivingResourceWithName resourceName: String,
         fromPeer peerID: MCPeerID,
         with progress: Progress
     ) {}
 
-    func session(
+    nonisolated func session(
         _ session: MCSession,
         didFinishReceivingResourceWithName resourceName: String,
         fromPeer peerID: MCPeerID,
         at localURL: URL?,
         withError error: Error?
     ) {
-        DispatchQueue.main.async { [weak self] in
-            self?.receiveResource(name: resourceName, temporaryURL: localURL, error: error)
+        let errorMessage = error?.localizedDescription
+        Task { @MainActor [weak self] in
+            let bridgedError = errorMessage.map { CLIError.connection($0) }
+            self?.receiveResource(name: resourceName, temporaryURL: localURL, error: bridgedError)
         }
+    }
+}
+
+private struct UncheckedSendableBox<Value>: @unchecked Sendable {
+    let value: Value
+
+    init(_ value: Value) {
+        self.value = value
     }
 }
 
