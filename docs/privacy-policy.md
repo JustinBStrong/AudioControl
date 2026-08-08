@@ -1,6 +1,6 @@
 # AudioControl privacy policy
 
-Last updated: August 5, 2026
+Last updated: August 7, 2026
 
 AudioControl does not collect, sell, or transmit personal data to the developer
 or any third party. If the user enables Agent Control and approves a nearby Mac,
