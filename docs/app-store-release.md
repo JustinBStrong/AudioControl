@@ -6,8 +6,8 @@
 - marketing version `1.0.0`, build `1`
 - automatic signing for Apple Developer team `3TKP8A48MF`
 - opaque 1024 x 1024 App Store icon in the `AppIcon` asset catalog
-- Bluetooth and microphone purpose strings explaining local ESP32 control and
-  user-initiated cabin measurements
+- Bluetooth, microphone, and local-network purpose strings explaining ESP32
+  control and explicitly approved nearby-Mac Agent Control
 - valid privacy manifest declaring no tracking, collected data, or required-reason API use
 - export-compliance key declaring no non-exempt encryption
 - launch-screen configuration and light appearance
@@ -27,20 +27,21 @@
   line-level audio source and a subwoofer amplifier. Adjust subwoofer delay,
   choose a low-pass cutoff, shape deep bass with a simple low shelf, and monitor
   DSP clipping and headroom over Bluetooth Low Energy. A continuous test-tone
-  generator helps set gain. A guided measurement sweep uses the iPhone's
-  built-in microphone and the selected car Bluetooth output to capture the
-  system's response at the listening position.
+  generator helps set gain. An optional Agent Control interface lets the user
+  approve a nearby Mac to play arbitrary test audio over the selected output,
+  capture the built-in microphone, and return the recording for analysis.
 
 - **Keywords:** subwoofer,audio,DSP,delay,crossover,ESP32,test tone,bass
 - **Review note:**
 
   The app controls a separate open-source ESP32 Audio Kit peripheral over BLE.
-  The hardware is not required to review the local test-tone or cabin-measurement
+  The hardware is not required to review the local test-tone or Agent Control
   interface. Without a peripheral, the Tune screen remains visible and reports
-  that no processor is connected. The Measure screen requests microphone access
-  only after the reviewer taps Measure, and it requires a Bluetooth A2DP output
-  before recording. A demonstration device can be supplied if App Review
-  requests one.
+  that no processor is connected. Agent Control is off by default, advertises
+  only after the user enables it, and requires the user to approve the named Mac
+  before any playback or microphone command is accepted. Active remote audio is
+  visible in the app with a Stop control. A demonstration device and Mac CLI can
+  be supplied if App Review requests them.
 
 ## Still required outside the source tree
 
