@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>AudioControl</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>AudioControl uses Bluetooth to find and configure your nearby ESP32 audio processor and to connect developer tools to this iPhone.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_ac-audio-dev._tcp</string>
+	</array>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Developer builds connect to the AudioControl engineering tool on your nearby Mac.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Developer builds can record unprocessed audio when commanded from your paired Mac. Recordings are returned only to that nearby developer session.</string>
+	<key>UILaunchScreen</key>
+	<dict/>
+</dict>
+</plist>

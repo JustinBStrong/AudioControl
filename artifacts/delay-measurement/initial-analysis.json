@@ -1,0 +1,11 @@
+{
+  "bluetooth_alignment_shift_ms": 37.89115646258504,
+  "combined_recording_peak_dbfs": -3.572538070758842,
+  "cross_correlation_delay_ms": 168.4126984126984,
+  "door_high_arrival_ms": 2054.8526077097504,
+  "door_low_arrival_ms": 2203.764172335601,
+  "door_scale_between_captures": 0.30874632348398695,
+  "reference_recording_peak_dbfs": -21.163375090858707,
+  "required_esp_delay_ms": 180.7482993197279,
+  "sub_arrival_ms": 2023.015873015873
+}

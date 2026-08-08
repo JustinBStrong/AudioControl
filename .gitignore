@@ -1,0 +1,15 @@
+.DS_Store
+tmp/
+
+firmware/.pio/
+firmware/build/
+firmware/build-verify/
+*.wav
+
+__pycache__/
+*.py[cod]
+
+ios/.build/
+ios/.derived/
+**/xcuserdata/
+*.xcuserstate
