@@ -39,6 +39,12 @@ large runtime and security surface without improving that workflow.
 3. Run an `iphone-audio` command on the nearby Mac.
 4. Approve that Mac by name in the iPhone app.
 
+The CLI stores a stable, non-secret Multipeer identity in the Mac user's
+Application Support directory. After the first approval, the app reconnects
+that same peer automatically while Agent Control stays armed. Approval is
+cleared when Agent Control is turned off, the app is backgrounded, or the app
+terminates.
+
 AudioControl uses Apple's encrypted Multipeer Connectivity session. Discovery
 can use the local network, peer-to-peer Wi-Fi, and nearby-device connectivity,
 so it does not require a conventional Wi-Fi router or a hard-coded IP address.

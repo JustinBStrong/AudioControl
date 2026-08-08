@@ -37,6 +37,7 @@ final class DeveloperAudioBridge: NSObject, ObservableObject {
     private let audioEngine = DeveloperAudioEngine()
     private var pendingInvitation: ((Bool, MCSession?) -> Void)?
     private var pendingPeer: MCPeerID?
+    private var approvedPeer: MCPeerID?
     private var uploadedResources = [String: URL]()
     private var activePlaybackResource: String?
     private var isForeground = false
@@ -92,6 +93,7 @@ final class DeveloperAudioBridge: NSObject, ObservableObject {
         isForeground = false
         advertiser.stopAdvertisingPeer()
         rejectPendingConnection()
+        approvedPeer = nil
         audioEngine.suspend()
         session.disconnect()
         connectionState = isEnabled ? .advertising : .disabled
@@ -108,6 +110,7 @@ final class DeveloperAudioBridge: NSObject, ObservableObject {
             lastEvent = "Agent Control disabled"
             advertiser.stopAdvertisingPeer()
             rejectPendingConnection()
+            approvedPeer = nil
             audioEngine.suspend()
             session.disconnect()
             deleteUploadedResources()
@@ -121,6 +124,7 @@ final class DeveloperAudioBridge: NSObject, ObservableObject {
               let peer = pendingPeer else { return }
         pendingInvitation = nil
         pendingPeer = nil
+        approvedPeer = peer
         connectionState = .connecting(peer.displayName)
         invitation(true, session)
     }
@@ -442,7 +446,16 @@ extension DeveloperAudioBridge: MCNearbyServiceAdvertiserDelegate {
         invitationHandler: @escaping (Bool, MCSession?) -> Void
     ) {
         Task { @MainActor in
-            guard self.isEnabled, self.pendingInvitation == nil else {
+            guard self.isEnabled else {
+                invitationHandler(false, nil)
+                return
+            }
+            if self.approvedPeer == peerID {
+                self.connectionState = .connecting(peerID.displayName)
+                invitationHandler(true, self.session)
+                return
+            }
+            guard self.pendingInvitation == nil else {
                 invitationHandler(false, nil)
                 return
             }

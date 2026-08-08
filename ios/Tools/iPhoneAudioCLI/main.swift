@@ -81,8 +81,7 @@ private final class AgentAudioCLI: NSObject {
             }
         }
 
-        let displayName = "AudioControl Mac \(ProcessInfo.processInfo.processIdentifier)"
-        let peerID = MCPeerID(displayName: displayName)
+        let peerID = try Self.loadOrCreatePeerID()
         self.peerID = peerID
         self.session = MCSession(
             peer: peerID,
@@ -97,6 +96,35 @@ private final class AgentAudioCLI: NSObject {
         session.delegate = self
         browser.delegate = self
         command = makeCommand()
+    }
+
+    private static func loadOrCreatePeerID() throws -> MCPeerID {
+        let directory = FileManager.default.urls(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask
+        )[0].appendingPathComponent("AudioControl", isDirectory: true)
+        let archiveURL = directory.appendingPathComponent("agent-peer-id.archive")
+        if let data = try? Data(contentsOf: archiveURL),
+           let peer = try? NSKeyedUnarchiver.unarchivedObject(
+               ofClass: MCPeerID.self,
+               from: data
+           ) {
+            return peer
+        }
+
+        let hostName = Host.current().localizedName ?? "Mac"
+        let displayName = String("AudioControl · \(hostName)".prefix(63))
+        let peer = MCPeerID(displayName: displayName)
+        try FileManager.default.createDirectory(
+            at: directory,
+            withIntermediateDirectories: true
+        )
+        let data = try NSKeyedArchiver.archivedData(
+            withRootObject: peer,
+            requiringSecureCoding: true
+        )
+        try data.write(to: archiveURL, options: .atomic)
+        return peer
     }
 
     func run() throws {
