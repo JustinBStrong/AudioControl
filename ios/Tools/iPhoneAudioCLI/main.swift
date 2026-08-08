@@ -128,7 +128,7 @@ private final class AgentAudioCLI: NSObject {
     }
 
     func run() throws {
-        print("Looking for AudioControl. Open the Agent tab, enable Agent Control, and approve this Mac.")
+        print("Looking for AudioControl. Open the Agent tab and enable Agent Control.")
         browser.startBrowsingForPeers()
         let timeout = Date().addingTimeInterval(1_860)
         while !finished, Date() < timeout {
@@ -339,7 +339,7 @@ extension AgentAudioCLI: MCNearbyServiceBrowserDelegate {
             self.targetPeer = peer.value
             self.browser.stopBrowsingForPeers()
             self.stage = "waiting for approval on \(peer.value.displayName)"
-            print("Found \(peer.value.displayName). Approve the connection in the iPhone app.")
+            print("Found \(peer.value.displayName). Approve it in the app if this is the first connection.")
             self.browser.invitePeer(peer.value, to: self.session, withContext: nil, timeout: 45)
         }
     }
