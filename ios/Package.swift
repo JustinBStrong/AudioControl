@@ -15,6 +15,7 @@ let package = Package(
             exclude: [
                 "App",
                 "Audio",
+                "Assets.xcassets",
                 "Theme",
                 "Views",
                 "Bluetooth/AudioControlBLEClient.swift",
