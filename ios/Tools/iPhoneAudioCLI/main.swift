@@ -251,20 +251,20 @@ private final class AgentAudioCLI: NSObject {
 
     private func receiveResource(
         name: String,
-        temporaryURL: URL?,
-        error: Error?
+        stagedURL: URL?,
+        errorMessage: String?
     ) {
-        if let error {
-            fail(CLIError.connection("Recording download failed: \(error.localizedDescription)"))
+        if let errorMessage {
+            fail(CLIError.connection("Recording download failed: \(errorMessage)"))
             return
         }
         guard let outputURL = action.outputURL,
-              let temporaryURL,
+              let stagedURL,
               name.hasPrefix("capture-") else { return }
         do {
             let parent = outputURL.deletingLastPathComponent()
             try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true)
-            try FileManager.default.copyItem(at: temporaryURL, to: outputURL)
+            try FileManager.default.moveItem(at: stagedURL, to: outputURL)
             receivedRecording = true
             print("Recording saved to \(outputURL.path)")
             if commandCompleted,
@@ -272,6 +272,7 @@ private final class AgentAudioCLI: NSObject {
                 succeed()
             }
         } catch {
+            try? FileManager.default.removeItem(at: stagedURL)
             fail(CLIError.connection("Could not save recording: \(error.localizedDescription)"))
         }
     }
@@ -380,11 +381,62 @@ extension AgentAudioCLI: MCSessionDelegate {
         at localURL: URL?,
         withError error: Error?
     ) {
-        let errorMessage = error?.localizedDescription
+        let staged = stageDownloadedResource(
+            name: resourceName,
+            localURL: localURL,
+            error: error
+        )
         Task { @MainActor [weak self] in
-            let bridgedError = errorMessage.map { CLIError.connection($0) }
-            self?.receiveResource(name: resourceName, temporaryURL: localURL, error: bridgedError)
+            self?.receiveResource(
+                name: staged.name,
+                stagedURL: staged.url,
+                errorMessage: staged.errorMessage
+            )
         }
+    }
+}
+
+private struct StagedDownloadedResource: Sendable {
+    let name: String
+    let url: URL?
+    let errorMessage: String?
+}
+
+private func stageDownloadedResource(
+    name: String,
+    localURL: URL?,
+    error: Error?
+) -> StagedDownloadedResource {
+    if let error {
+        return StagedDownloadedResource(
+            name: name,
+            url: nil,
+            errorMessage: error.localizedDescription
+        )
+    }
+    guard let localURL else {
+        return StagedDownloadedResource(
+            name: name,
+            url: nil,
+            errorMessage: "Multipeer did not provide a temporary recording file."
+        )
+    }
+    do {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("AudioControl-Agent-Downloads", isDirectory: true)
+        try FileManager.default.createDirectory(
+            at: directory,
+            withIntermediateDirectories: true
+        )
+        let stagedURL = directory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.copyItem(at: localURL, to: stagedURL)
+        return StagedDownloadedResource(name: name, url: stagedURL, errorMessage: nil)
+    } catch {
+        return StagedDownloadedResource(
+            name: name,
+            url: nil,
+            errorMessage: error.localizedDescription
+        )
     }
 }
 

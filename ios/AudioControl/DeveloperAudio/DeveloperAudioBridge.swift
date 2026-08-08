@@ -108,8 +108,9 @@ final class DeveloperAudioBridge: NSObject, ObservableObject {
             lastEvent = "Agent Control disabled"
             advertiser.stopAdvertisingPeer()
             rejectPendingConnection()
-            audioEngine.stop()
+            audioEngine.suspend()
             session.disconnect()
+            deleteUploadedResources()
             connectionState = .disabled
         }
         refreshStatus()
@@ -189,6 +190,15 @@ final class DeveloperAudioBridge: NSObject, ObservableObject {
             }
 
         case .run:
+            guard audioEngine.activity == .idle else {
+                send(DeveloperAudioEvent(
+                    requestID: command.id,
+                    kind: .error,
+                    message: DeveloperAudioEngine.EngineError.alreadyRunning.localizedDescription,
+                    status: routeStatus
+                ), to: peer)
+                return
+            }
             let playbackURL = command.playbackResource.flatMap { uploadedResources[$0] }
             if command.playbackResource != nil, playbackURL == nil {
                 send(DeveloperAudioEvent(
@@ -200,9 +210,9 @@ final class DeveloperAudioBridge: NSObject, ObservableObject {
             }
             Task { [weak self] in
                 guard let self else { return }
+                self.activePlaybackResource = command.playbackResource
                 do {
                     try await self.audioEngine.start(command: command, playbackURL: playbackURL)
-                    self.activePlaybackResource = command.playbackResource
                     self.lastEvent = self.commandDescription(command, peer: peer.displayName)
                     self.refreshStatus()
                     self.send(DeveloperAudioEvent(
@@ -212,6 +222,11 @@ final class DeveloperAudioBridge: NSObject, ObservableObject {
                         status: self.routeStatus
                     ), to: peer)
                 } catch {
+                    if let resourceName = self.activePlaybackResource,
+                       let url = self.uploadedResources.removeValue(forKey: resourceName) {
+                        try? FileManager.default.removeItem(at: url)
+                    }
+                    self.activePlaybackResource = nil
                     self.send(DeveloperAudioEvent(
                         requestID: command.id,
                         kind: .error,
@@ -273,38 +288,41 @@ final class DeveloperAudioBridge: NSObject, ObservableObject {
                 resourceName: resourceName,
                 status: routeStatus
             ), to: peer)
+            let completion: @Sendable (Error?) -> Void = { [weak self] error in
+                try? FileManager.default.removeItem(at: recordingURL)
+                guard let error else { return }
+                let message = error.localizedDescription
+                Task { @MainActor in
+                    self?.lastEvent = "Could not return the recording: \(message)"
+                }
+            }
             session.sendResource(
                 at: recordingURL,
                 withName: resourceName,
-                toPeer: peer
-            ) { [weak self] error in
-                try? FileManager.default.removeItem(at: recordingURL)
-                guard let error else { return }
-                Task { @MainActor in
-                    self?.lastEvent = "Could not return the recording: \(error.localizedDescription)"
-                }
-            }
+                toPeer: peer,
+                withCompletionHandler: completion
+            )
         }
     }
 
     private func receiveResource(
         named resourceName: String,
-        at temporaryURL: URL?,
-        error: Error?,
+        at stagedURL: URL?,
+        errorMessage: String?,
         from peer: MCPeerID
     ) {
-        if let error {
+        if let errorMessage {
             send(DeveloperAudioEvent(
                 requestID: requestID(fromUploadResource: resourceName),
                 kind: .error,
-                message: "The iPhone could not receive \(resourceName): \(error.localizedDescription)"
+                message: "The iPhone could not receive \(resourceName): \(errorMessage)"
             ), to: peer)
             return
         }
         guard resourceName == URL(fileURLWithPath: resourceName).lastPathComponent,
               resourceName.hasPrefix("upload-"),
               resourceName.lowercased().hasSuffix(".wav"),
-              let temporaryURL else {
+              let stagedURL else {
             send(DeveloperAudioEvent(
                 requestID: requestID(fromUploadResource: resourceName),
                 kind: .error,
@@ -314,10 +332,6 @@ final class DeveloperAudioBridge: NSObject, ObservableObject {
         }
 
         do {
-            let values = try temporaryURL.resourceValues(forKeys: [.fileSizeKey])
-            guard (values.fileSize ?? 0) <= 128 * 1_024 * 1_024 else {
-                throw CocoaError(.fileReadTooLarge)
-            }
             let directory = FileManager.default.temporaryDirectory
                 .appendingPathComponent("AudioControl-Agent-Uploads", isDirectory: true)
             try FileManager.default.createDirectory(
@@ -326,7 +340,7 @@ final class DeveloperAudioBridge: NSObject, ObservableObject {
             )
             let destination = directory.appendingPathComponent(resourceName)
             try? FileManager.default.removeItem(at: destination)
-            try FileManager.default.copyItem(at: temporaryURL, to: destination)
+            try FileManager.default.moveItem(at: stagedURL, to: destination)
             uploadedResources[resourceName] = destination
             send(DeveloperAudioEvent(
                 requestID: requestID(fromUploadResource: resourceName),
@@ -334,12 +348,65 @@ final class DeveloperAudioBridge: NSObject, ObservableObject {
                 resourceName: resourceName
             ), to: peer)
         } catch {
+            try? FileManager.default.removeItem(at: stagedURL)
             send(DeveloperAudioEvent(
                 requestID: requestID(fromUploadResource: resourceName),
                 kind: .error,
                 message: "The iPhone could not store \(resourceName): \(error.localizedDescription)"
             ), to: peer)
         }
+    }
+
+    nonisolated private static func stageIncomingResource(
+        named resourceName: String,
+        at localURL: URL?,
+        error: Error?
+    ) -> StagedIncomingResource {
+        if let error {
+            return StagedIncomingResource(
+                resourceName: resourceName,
+                url: nil,
+                errorMessage: error.localizedDescription
+            )
+        }
+        guard let localURL else {
+            return StagedIncomingResource(
+                resourceName: resourceName,
+                url: nil,
+                errorMessage: "Multipeer did not provide a temporary file."
+            )
+        }
+        do {
+            let values = try localURL.resourceValues(forKeys: [.fileSizeKey])
+            guard (values.fileSize ?? 0) <= 128 * 1_024 * 1_024 else {
+                throw CocoaError(.fileReadTooLarge)
+            }
+            let directory = FileManager.default.temporaryDirectory
+                .appendingPathComponent("AudioControl-Agent-Incoming", isDirectory: true)
+            try FileManager.default.createDirectory(
+                at: directory,
+                withIntermediateDirectories: true
+            )
+            let stagedURL = directory.appendingPathComponent(UUID().uuidString)
+            try FileManager.default.copyItem(at: localURL, to: stagedURL)
+            return StagedIncomingResource(
+                resourceName: resourceName,
+                url: stagedURL,
+                errorMessage: nil
+            )
+        } catch {
+            return StagedIncomingResource(
+                resourceName: resourceName,
+                url: nil,
+                errorMessage: error.localizedDescription
+            )
+        }
+    }
+
+    private func deleteUploadedResources() {
+        uploadedResources.values.forEach { try? FileManager.default.removeItem(at: $0) }
+        uploadedResources.removeAll()
+        activePlaybackResource = nil
     }
 
     private func requestID(fromUploadResource resourceName: String) -> String {
@@ -409,6 +476,7 @@ extension DeveloperAudioBridge: MCSessionDelegate {
                 self.connectionState = self.isEnabled ? .advertising : .disabled
                 self.lastEvent = "\(peerID.displayName) disconnected"
                 self.audioEngine.suspend()
+                self.deleteUploadedResources()
                 self.beginAdvertisingIfNeeded()
             case .connecting:
                 self.connectionState = .connecting(peerID.displayName)
@@ -448,13 +516,24 @@ extension DeveloperAudioBridge: MCSessionDelegate {
         at localURL: URL?,
         withError error: Error?
     ) {
+        let staged = Self.stageIncomingResource(
+            named: resourceName,
+            at: localURL,
+            error: error
+        )
         Task { @MainActor in
             self.receiveResource(
-                named: resourceName,
-                at: localURL,
-                error: error,
+                named: staged.resourceName,
+                at: staged.url,
+                errorMessage: staged.errorMessage,
                 from: peerID
             )
         }
     }
+}
+
+private struct StagedIncomingResource: Sendable {
+    let resourceName: String
+    let url: URL?
+    let errorMessage: String?
 }
