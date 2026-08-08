@@ -17,6 +17,21 @@ The shipping app exposes only generic audio primitives:
 There is deliberately no fixed sweep, measurement preset, EQ decision, or
 remote code interpreter.
 
+## Language boundary
+
+Swift is intentionally limited to the thin device boundary. The iPhone app
+uses Swift because AVAudioSession, AVAudioEngine, microphone permission, A2DP
+routing, and Multipeer Connectivity are native Apple APIs. The Mac CLI also
+uses Swift only to speak that same Multipeer protocol reliably.
+
+Signal generation and acoustic analysis belong on the Mac. Python can create
+arbitrary WAV stimuli and process returned captures with NumPy, SciPy,
+soundfile, or other established audio libraries. An agent can call the Swift
+CLI as a subprocess from Python, so adding a new measurement or analysis does
+not require changing or recompiling the iPhone app. Embedding Python, a Linux
+container, JavaScript, or arbitrary code execution on the phone would add a
+large runtime and security surface without improving that workflow.
+
 ## Consent and connection
 
 1. Open **Agent** in AudioControl on the iPhone.

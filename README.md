@@ -23,6 +23,10 @@ generates its tone without an ESP32 connected; BLE controls become available
 when the physical processor is powered nearby. Agent Control is separately
 armed by the user and does not require the ESP32 control link.
 
+Agent audio uses a deliberately small language boundary: native Swift handles
+iPhone audio routing and nearby transport, while Mac-side Python or other audio
+tools generate stimuli and analyze the raw WAV returned by the phone.
+
 ## Run the iPhone app
 
 Open `ios/AudioControl.xcodeproj` in Xcode and run the `AudioControl` scheme on
