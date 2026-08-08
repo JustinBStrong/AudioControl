@@ -177,17 +177,12 @@ private final class AgentAudioCLI: NSObject {
             let resourceName = uploadName()
             uploadResourceName = resourceName
             print("Connected. Uploading \(inputURL.lastPathComponent)…")
-            session.sendResource(
+            _ = session.sendResource(
                 at: inputURL,
                 withName: resourceName,
-                toPeer: targetPeer
-            ) { [weak self] error in
-                guard let error else { return }
-                let message = error.localizedDescription
-                Task { @MainActor in
-                    self?.fail(CLIError.connection("WAV upload failed: \(message)"))
-                }
-            }
+                toPeer: targetPeer,
+                withCompletionHandler: nil
+            )
         } else {
             sendCommand(to: targetPeer)
         }
