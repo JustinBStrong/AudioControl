@@ -1,0 +1,9 @@
+AudioControl is a focused controller for a compatible ESP32 Audio Kit installed between a line-level audio source and a subwoofer amplifier.
+
+Use Bluetooth Low Energy to read the processor's saved configuration, adjust subwoofer delay, select a steep low-pass crossover, and shape deep bass with a configurable low shelf. Every change remains a local draft until you explicitly save it to the processor, and the app confirms the revision stored by the ESP32.
+
+AudioControl also includes a continuous sine-wave generator for amplifier gain setup. Frequency and digital level can be adjusted while the tone is playing, and the standard iOS route picker sends it to your selected audio output.
+
+The optional Agent Control interface lets you approve a nearby Mac for repeatable acoustic engineering work. The approved Mac can play a test WAV over the selected output, record the iPhone's built-in microphone in measurement mode, and receive the resulting WAV for analysis. Agent Control is off by default, every Mac requires approval, active operations remain visible, and recording can be stopped immediately from the app.
+
+The app does not contain advertising, analytics, accounts, tracking, or cloud data collection. The ESP32 processor is a separate open hardware project and is not included with the app.

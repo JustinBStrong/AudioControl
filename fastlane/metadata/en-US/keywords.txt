@@ -1,0 +1,1 @@
+subwoofer,DSP,delay,crossover,ESP32,test tone,bass,audio

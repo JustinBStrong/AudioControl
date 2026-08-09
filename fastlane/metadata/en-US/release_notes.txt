@@ -1,0 +1,1 @@
+Initial release of AudioControl for ESP32 subwoofer delay, crossover, deep-bass shaping, test-tone generation, and consent-gated acoustic measurement tooling.

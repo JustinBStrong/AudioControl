@@ -1,0 +1,5 @@
+AudioControl controls a separate ESP32 Audio Kit peripheral over Bluetooth Low Energy. The hardware is not required to review the local Test Tone or Agent interfaces. Without a compatible processor, the Tune screen remains visible, clearly reports that no processor is connected, and prevents unconfirmed settings from being written.
+
+Agent Control is off by default. It advertises only after the reviewer enables it and requires approval of the named nearby Mac before accepting playback or microphone commands. Any active remote operation is visible in the Agent tab with an immediate Stop control. The Mac command-line tool and protocol are included in the public source repository linked by the support URL.
+
+The app has no account, purchases, advertising, analytics, or developer-operated service. Microphone recordings requested through Agent Control are transferred directly to the user-approved nearby Mac and are never sent to the developer.
