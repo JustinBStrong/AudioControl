@@ -1,6 +1,6 @@
 # AudioControl privacy policy
 
-Last updated: August 7, 2026
+Last updated: August 9, 2026
 
 AudioControl does not collect, sell, or transmit personal data to the developer
 or any third party. If the user enables Agent Control and approves a nearby Mac,
@@ -50,5 +50,5 @@ disclosure will be updated before the changed version is distributed.
 
 ## Contact
 
-Support and privacy questions can be sent through the support contact listed on
-AudioControl's App Store product page.
+Support and privacy questions can be submitted through the public AudioControl
+support tracker at <https://github.com/JustinBStrong/AudioControl/issues>.

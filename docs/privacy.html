@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>AudioControl Privacy Policy</title>
+  <style>
+    :root { color: #17202a; background: #f5f7f8; font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { margin: 0; }
+    main { box-sizing: border-box; max-width: 760px; min-height: 100vh; margin: auto; padding: 64px 24px; }
+    article { padding: clamp(24px, 6vw, 52px); border: 1px solid #dce2e7; border-radius: 20px; background: white; }
+    h1 { margin-top: 0; font-size: clamp(2rem, 7vw, 3.2rem); letter-spacing: -.04em; }
+    h2 { margin-top: 38px; }
+    p { color: #40505f; }
+    a { color: #075ea8; }
+  </style>
+</head>
+<body>
+  <main>
+    <article>
+      <h1>AudioControl privacy policy</h1>
+      <p><strong>Last updated August 9, 2026</strong></p>
+      <p>AudioControl does not collect, sell, or transmit personal data to the developer or any third party. If you enable Agent Control and approve a nearby Mac, the app can send microphone recordings directly to that Mac at your request. The developer does not receive those recordings.</p>
+
+      <h2>Bluetooth</h2>
+      <p>AudioControl uses Bluetooth Low Energy to find and configure a nearby compatible ESP32 audio processor. DSP settings and device status are exchanged directly between the iPhone and processor. They are not sent to the developer or any third party.</p>
+
+      <h2>Audio and microphone</h2>
+      <p>The Test Tone feature generates audio locally and sends it only to your selected audio output. Agent Control is disabled by default. After you enable it and approve a named nearby Mac, that Mac can ask the app to play an audio file, record the built-in microphone, or do both. Active playback or recording is visible in the Agent tab and can be stopped there. Microphone access remains subject to the normal iOS permission prompt.</p>
+      <p>Agent recordings are transferred directly to the approved Mac. Temporary audio files on the iPhone are removed after transfer, disconnection, cancellation, or failure. AudioControl does not upload them to the developer or an internet service.</p>
+
+      <h2>Networking and third parties</h2>
+      <p>AudioControl uses Apple's Multipeer Connectivity framework to communicate with a user-approved nearby Mac over local or peer-to-peer connectivity. It does not connect to a developer-operated service and contains no analytics, advertising, tracking, account system, or third-party SDK.</p>
+
+      <h2>Retention and deletion</h2>
+      <p>Because AudioControl does not transmit personal data to our systems, there is no personal data for us to retain or delete. DSP configuration is stored on the user's ESP32 processor. Agent audio is temporary on the iPhone; recordings saved by the Mac tool are controlled and deleted by the Mac user.</p>
+
+      <h2>Changes and contact</h2>
+      <p>If AudioControl's data practices change, this policy and the App Store privacy disclosure will be updated before the changed version is distributed. For questions, use the <a href="https://github.com/JustinBStrong/AudioControl/issues">AudioControl support tracker</a>.</p>
+    </article>
+  </main>
+</body>
+</html>
