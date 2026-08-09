@@ -7,8 +7,8 @@ recording primitives.
 
 ## Open and run
 
-`AudioControl.xcodeproj` is checked in and can be opened directly in Xcode 16.2
-or newer. If `project.yml` changes, regenerate it with:
+`AudioControl.xcodeproj` is checked in and can be opened directly in Xcode 26.3
+or newer for App Store submission. If `project.yml` changes, regenerate it with:
 
 ```sh
 cd ios

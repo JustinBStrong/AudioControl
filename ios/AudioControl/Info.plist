@@ -23,15 +23,15 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>AudioControl uses Bluetooth to find and configure your nearby ESP32 audio processor and to connect developer tools to this iPhone.</string>
+	<string>AudioControl uses Bluetooth to find and configure your nearby ESP32 audio processor.</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_ac-audio-dev._tcp</string>
 	</array>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Developer builds connect to the AudioControl engineering tool on your nearby Mac.</string>
+	<string>AudioControl uses your local network only when you enable Agent Control to communicate with a nearby Mac you approve.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Developer builds can record unprocessed audio when commanded from your paired Mac. Recordings are returned only to that nearby developer session.</string>
+	<string>When you enable Agent Control and approve a nearby Mac, AudioControl can record the iPhone microphone for acoustic measurements and return the recording directly to that Mac.</string>
 	<key>UILaunchScreen</key>
 	<dict/>
 </dict>
