@@ -1,55 +1,101 @@
 # AudioControl
 
-AudioControl is a software-first prototype for inserting an ESP32 Audio Kit
-between a Bluetooth receiver and a subwoofer amplifier. The board adds an
-adjustable delay, a steep low-pass crossover, a configurable deep-bass shelf,
-and automatic digital headroom. A native iPhone app controls those settings over BLE, automatically
-reserves digital headroom for bass-shelf boosts, and can generate a continuous
-subwoofer test tone. Its Agent Control API lets an approved nearby Mac use the
-iPhone's selected Bluetooth playback route and built-in microphone without
-baking a particular measurement procedure into the app.
+AudioControl is an iPhone-controlled DSP for aligning and tuning an aftermarket
+car subwoofer without surrendering the full-range source signal to the factory
+head unit.
 
-## Repository layout
+The system places an ESP32 Audio Kit between a Bluetooth receiver and the
+subwoofer amplifier. Native firmware delays and filters the stereo line input;
+a SwiftUI app reads and writes the saved DSP configuration over Bluetooth Low
+Energy. The app also exposes a consent-gated audio bridge so a nearby Mac agent
+can make repeatable in-car acoustic measurements with the iPhone microphone.
 
-- `ios/` — SwiftUI iPhone app and packet/control tests
-- `firmware/` — portable C++ DSP, Apple Silicon simulator, and ESP32 adapter
-- `protocol/ble-v2.md` — shared binary BLE contract
-- `docs/board-integration.md` — ESP32 Audio Kit V2.2/ES8388 wiring notes
-- `docs/noise-investigation.md` — measured DMA/BLE noise cause and verified fix
-- `docs/agent-audio-control.md` — Mac/iPhone Agent Control protocol and CLI
+> **Project status:** the DSP, BLE protocol, iPhone app, Mac audio-control CLI,
+> portable simulator, and physical-board firmware are implemented. App Store
+> distribution is being prepared. Physical vehicle tuning still depends on the
+> specific source, amplifier, enclosure, and cabin.
 
-The phone app and firmware are independent build targets. The app launches and
-generates its tone without an ESP32 connected; BLE controls become available
-when the physical processor is powered nearby. Agent Control is separately
-armed by the user and does not require the ESP32 control link.
+## What it does
 
-Agent audio uses a deliberately small language boundary: native Swift handles
-iPhone audio routing and nearby transport, while Mac-side Python or other audio
-tools generate stimuli and analyze the raw WAV returned by the phone.
+- Adds 0–500 ms of subwoofer delay without delaying the door speakers.
+- Applies a configurable fourth-order Linkwitz–Riley low-pass crossover.
+- Adds an optional low shelf for broad deep-bass shaping.
+- Reserves digital headroom automatically and reports DSP clipping telemetry.
+- Saves configuration on the ESP32 only after an explicit **Set on processor**
+  action and confirms the persisted revision.
+- Generates a continuous, adjustable 20–200 Hz iPhone test tone for amplifier
+  gain setup.
+- Lets an explicitly approved nearby Mac play arbitrary WAV test signals,
+  record the iPhone microphone in measurement mode, and retrieve the raw WAV.
+
+The phone does **not** execute downloaded code. Swift handles the iPhone audio
+session and nearby transport; Python, REW, or another desktop audio tool can
+generate stimuli and analyze recordings on the Mac.
+
+## System shape
+
+```text
+Bluetooth source
+    ├── 3.5 mm ──> factory head unit ──> door speakers
+    └── RCA/line ─> ESP32 Audio Kit ───> subwoofer amplifier ──> subwoofer
+                         ▲
+                         └── BLE configuration from AudioControl for iPhone
+```
+
+The intended board is the ESP32 Audio Kit V2.2 A618 using the ESP32-A1S and
+ES8388 codec. See [board integration](docs/board-integration.md) before adapting
+the firmware to another revision; similar-looking boards do not always share
+codec pin assignments or input routing.
+
+## Repository map
+
+| Path | Purpose |
+| --- | --- |
+| [`ios/`](ios/) | SwiftUI iPhone app, shared protocol, tests, and Mac CLI |
+| [`firmware/`](firmware/) | Portable C++ DSP, host simulator, and ESP32 adapter |
+| [`protocol/ble-v2.md`](protocol/ble-v2.md) | Canonical binary BLE contract |
+| [`docs/agent-audio-control.md`](docs/agent-audio-control.md) | Mac/iPhone agent-audio API |
+| [`docs/board-integration.md`](docs/board-integration.md) | Board switches, codec, and I/O notes |
+| [`docs/noise-investigation.md`](docs/noise-investigation.md) | ADC/DMA noise investigation and verified firmware fix |
+| [`fastlane/`](fastlane/) | Credential-free App Store release automation and metadata |
 
 ## Run the iPhone app
 
-Open `ios/AudioControl.xcodeproj` in Xcode and run the `AudioControl` scheme on
-an iPhone or iOS Simulator. If `ios/project.yml` changes, regenerate the project
-with:
+Open [`ios/AudioControl.xcodeproj`](ios/AudioControl.xcodeproj) and run the
+`AudioControl` scheme on an iPhone or simulator. Regenerate the checked-in
+project after changing `ios/project.yml`:
 
 ```sh
 cd ios
 xcodegen generate
-```
-
-Run the portable Swift tests on Apple Silicon with:
-
-```sh
-cd ios
 swift test
 ```
 
-The simulator can validate the UI and control logic. A physical iPhone is
-required to verify BLE against the board, Bluetooth/A2DP routing, and the final
-microphone capture path. See `docs/agent-audio-control.md` for the Mac CLI.
+An iOS simulator verifies the UI, packet codec, configuration state machine,
+and Mac-to-iPhone resource transfer. A physical iPhone is required to verify
+BLE against the ESP32, the selected Bluetooth/A2DP output, and the final
+built-in-microphone route.
 
-## Build and simulate the DSP on Apple Silicon
+## Use the agent-audio bridge
+
+On the iPhone, open **Agent**, enable **Agent Control**, and approve the named
+Mac. Then run from the `ios` directory:
+
+```sh
+swift run iphone-audio status
+swift run iphone-audio play input.wav --gain-db -30
+swift run iphone-audio record recording.wav --seconds 5
+swift run iphone-audio capture input.wav recording.wav --gain-db -30 --tail 1
+swift run iphone-audio stop
+```
+
+The CLI intentionally provides primitives instead of a hard-coded cabin sweep.
+An agent can generate a conservative WAV with desktop tooling, query the actual
+iPhone input/output routes, capture the response, and analyze it without
+changing the App Store binary. The protocol, consent model, and command schema
+are documented in [agent-audio-control.md](docs/agent-audio-control.md).
+
+## Build and simulate the DSP on a Mac
 
 ```sh
 cmake -S firmware -B firmware/build -G Ninja -DCMAKE_BUILD_TYPE=Release
@@ -65,34 +111,48 @@ firmware/build/audiocontrol_sim \
   --output firmware/build/audiocontrol-sim.wav
 ```
 
-This executes the same portable delay/filter code used by the ESP32 and
-writes a 48 kHz, 16-bit stereo WAV. It does not emulate the ES8388 codec, I2S,
-BLE radio, or real-time scheduling.
+The simulator executes the same portable delay and filter code used by the
+ESP32. It does not emulate the ES8388 analog path, I2S DMA timing, radio, or
+vehicle electrical environment.
 
-## Build the ESP32 firmware
+## Build and flash the ESP32
 
 No global PlatformIO installation is required:
 
 ```sh
 uvx --from platformio --with pip platformio run \
   -d firmware -e esp32_audio_kit
-```
 
-Once the board is connected by USB, flash it with:
-
-```sh
 uvx --from platformio --with pip platformio run \
   -d firmware -e esp32_audio_kit -t upload
 ```
 
-Run the non-audible physical-board BLE/configuration smoke test with:
+With the board connected and running, the non-audible BLE/configuration smoke
+test is:
 
 ```sh
 xcrun swiftc tools/ble_smoke.swift -o /tmp/audiocontrol_ble_smoke
 /tmp/audiocontrol_ble_smoke
 ```
 
-The physical-board smoke test verifies ES8388 discovery, active I2S processing,
-BLE control/telemetry, deferred flash persistence, and reboot recovery. Analog
-levels and end-to-end audible delay/filter behavior still require a connected
-line-level source and output load.
+## Safety
+
+Automatic DSP headroom prevents mathematical clipping inside the digital
+pipeline. It cannot prevent the source, codec, amplifier, or speaker from
+clipping or exceeding electrical, thermal, or excursion limits. Start test
+signals quietly, set amplifier gain with the final DSP configuration active,
+and treat low-frequency boost as additional amplifier and driver demand.
+
+## App Store releases
+
+Fastlane configuration, metadata, rating answers, and privacy declarations are
+tracked; credentials are not. See [`fastlane/README.md`](fastlane/README.md).
+The public support page is [`docs/index.html`](docs/index.html), and the public
+privacy policy is [`docs/privacy.html`](docs/privacy.html).
+
+## License
+
+This repository is **source-available, not open source**. The source is licensed
+under the [PolyForm Strict License 1.0.0](LICENSE): noncommercial use is
+permitted, but modification and redistribution are not licensed. See [NOTICE](NOTICE).
+Commercial licensing may be available separately.
