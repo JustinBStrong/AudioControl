@@ -34,7 +34,7 @@
 - **Keywords:** subwoofer,audio,DSP,delay,crossover,ESP32,test tone,bass
 - **Review note:**
 
-  The app controls a separate open-source ESP32 Audio Kit peripheral over BLE.
+  The app controls a separate ESP32 Audio Kit peripheral over BLE.
   The hardware is not required to review the local test-tone or Agent Control
   interface. Without a peripheral, the Tune screen remains visible and reports
   that no processor is connected. Agent Control is off by default, advertises

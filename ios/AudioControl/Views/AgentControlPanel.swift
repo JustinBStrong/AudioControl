@@ -144,7 +144,7 @@ struct AgentControlPanel: View {
             }
             .buttonStyle(.borderedProminent)
             .tint(AudioControlTheme.signal)
-            Text("The open-source protocol and CLI are documented in docs/agent-audio-control.md in the AudioControl repository.")
+            Text("The public protocol and CLI are documented in docs/agent-audio-control.md in the source-available AudioControl repository.")
                 .font(.caption)
                 .foregroundStyle(AudioControlTheme.muted)
         }
