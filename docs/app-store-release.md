@@ -12,6 +12,21 @@
 - export-compliance key declaring no non-exempt encryption
 - launch-screen configuration and light appearance
 - no analytics, ads, accounts, third-party SDKs, or network collection
+- credential-safe Fastlane lanes for testing, archiving, TestFlight, metadata,
+  screenshots, and App Review submission
+- three current 6.9-inch iPhone screenshots in `fastlane/screenshots/en-US`
+- App Store listing copy, age-rating answers, privacy declaration, and review
+  notes under `fastlane/metadata`
+- public privacy and support pages published from `docs/`
+
+## Prepared in Apple Developer and GitHub
+
+- registered Apple bundle identifier `com.justinstrong.AudioControl`
+- public source-available repository at
+  `https://github.com/JustinBStrong/AudioControl`
+- public privacy policy at
+  `https://justinbstrong.github.io/AudioControl/privacy.html`
+- public support page at `https://justinbstrong.github.io/AudioControl/`
 
 ## App Store Connect metadata draft
 
@@ -45,15 +60,15 @@
 
 ## Still required outside the source tree
 
-1. Host `docs/privacy-policy.md` at a public HTTPS URL; App Store Connect
-   requires a privacy-policy URL for iOS apps.
-2. Provide a public support URL and support contact.
-3. Create or select the matching App Store Connect app record and confirm the
-   bundle ID before the first upload; the bundle ID cannot be changed afterward.
-4. Capture one to ten current iPhone screenshots without transparency.
-5. Complete the updated age-rating, availability, pricing, content-rights, and
+1. Sign in to Apple through Xcodes and install Xcode 26.3. This is the newest
+   release that supports the machine's current macOS version and includes the
+   iOS 26 SDK required for submission.
+2. Sign in to App Store Connect and create the AudioControl app record for the
+   already-registered `com.justinstrong.AudioControl` bundle identifier. Apple
+   does not permit this one-time operation through the configured API key.
+3. Complete the updated age-rating, availability, pricing, content-rights, and
    EU Digital Services Act declarations in App Store Connect.
-6. Build the upload archive with Xcode 26 or later. Since April 28, 2026, Apple
+4. Build the upload archive with Xcode 26 or later. Since April 28, 2026, Apple
    requires iOS submissions to use the iOS 26 SDK or later.
-7. Validate the archive, upload it to TestFlight, test on a physical iPhone, and
+5. Validate the archive, upload it to TestFlight, test on a physical iPhone, and
    then explicitly submit the selected build for App Review.
