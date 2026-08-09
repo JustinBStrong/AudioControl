@@ -3,7 +3,7 @@
 ## Prepared in the project
 
 - iPhone-only application target with bundle ID `com.justinstrong.AudioControl`
-- marketing version `1.0.0`, build `1`
+- marketing version `1.0`, build `1`
 - automatic signing for Apple Developer team `3TKP8A48MF`
 - opaque 1024 x 1024 App Store icon in the `AppIcon` asset catalog
 - Bluetooth, microphone, and local-network purpose strings explaining ESP32
@@ -16,7 +16,7 @@
   screenshots, and App Review submission
 - three current 6.9-inch iPhone screenshots in `fastlane/screenshots/en-US`
 - App Store listing copy, age-rating answers, privacy declaration, and review
-  notes under `fastlane/metadata`
+  notes under `fastlane/`
 - public privacy and support pages published from `docs/`
 
 ## Prepared in Apple Developer and GitHub
@@ -27,10 +27,18 @@
 - public privacy policy at
   `https://justinbstrong.github.io/AudioControl/privacy.html`
 - public support page at `https://justinbstrong.github.io/AudioControl/`
+- App Store Connect record `6799782013`, with storefront name
+  `AudioControl DSP` and editable iOS version `1.0`
+- listing metadata, categories, age-rating answers, copyright, and all three
+  screenshots uploaded successfully; Fastlane precheck passes without warnings
+- App Privacy saved as “Data Not Collected” and awaiting the final publish
+  confirmation
+- Apple-signed Xcode 26.3 (`17C529`) installed side by side at
+  `/Applications/Xcode-26.3.app`
 
 ## App Store Connect metadata draft
 
-- **Name:** AudioControl
+- **Name:** AudioControl DSP
 - **Subtitle:** Tune your ESP32 subwoofer
 - **Primary category:** Utilities
 - **Secondary category:** Music
@@ -60,15 +68,11 @@
 
 ## Still required outside the source tree
 
-1. Sign in to Apple through Xcodes and install Xcode 26.3. This is the newest
-   release that supports the machine's current macOS version and includes the
-   iOS 26 SDK required for submission.
-2. Sign in to App Store Connect and create the AudioControl app record for the
-   already-registered `com.justinstrong.AudioControl` bundle identifier. Apple
-   does not permit this one-time operation through the configured API key.
-3. Complete the updated age-rating, availability, pricing, content-rights, and
-   EU Digital Services Act declarations in App Store Connect.
-4. Build the upload archive with Xcode 26 or later. Since April 28, 2026, Apple
+1. Accept the Xcode 26.3 and Apple SDK license, then run its first-launch setup.
+2. Confirm and publish the saved “Data Not Collected” App Privacy response.
+3. Complete availability, pricing, content-rights, and EU Digital Services Act
+   declarations in App Store Connect.
+4. Build the upload archive with Xcode 26.3. Since April 28, 2026, Apple
    requires iOS submissions to use the iOS 26 SDK or later.
 5. Validate the archive, upload it to TestFlight, test on a physical iPhone, and
    then explicitly submit the selected build for App Review.

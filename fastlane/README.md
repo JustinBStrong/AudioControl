@@ -1,35 +1,72 @@
-# Fastlane release workflow
+fastlane documentation
+----
 
-The release configuration is public; credentials are deliberately external.
-Set these variables before invoking a lane:
+# Installation
 
-```sh
-export ASC_API_KEY_JSON=/absolute/path/to/api_key.json
-export APP_REVIEW_INFO_DIR=/absolute/path/to/review_information
-```
-
-`ASC_API_KEY_JSON` uses the schema in `api_key.json.example`. Its `.p8` path is
-resolved beside the JSON file. `APP_REVIEW_INFO_DIR` must contain
-`first_name.txt`, `last_name.txt`, `phone_number.txt`, and `email_address.txt`.
-None of those files belong in this repository.
-
-The first App Store Connect record requires interactive Apple Account
-authentication:
+Make sure you have the latest version of the Xcode command line tools installed:
 
 ```sh
-APPLE_ID=you@example.com fastlane ios create_app_record
+xcode-select --install
 ```
 
-After the record exists:
+For _fastlane_ installation instructions, see [Installing _fastlane_](https://docs.fastlane.tools/#installing-fastlane)
+
+# Available Actions
+
+## iOS
+
+### ios create_app_record
 
 ```sh
-fastlane ios test
-fastlane ios build
-fastlane ios beta
-fastlane ios metadata
-fastlane ios release
+[bundle exec] fastlane ios create_app_record
 ```
 
-The `release` lane requires a clean Git tree, creates a signed App Store IPA,
-uploads it, waits for processing, uploads metadata and screenshots, and submits
-version 1.0.0 for automatic release after approval.
+Create the first App Store Connect record (interactive Apple Account authentication)
+
+### ios test
+
+```sh
+[bundle exec] fastlane ios test
+```
+
+Run the portable Swift test suite
+
+### ios build
+
+```sh
+[bundle exec] fastlane ios build
+```
+
+Build a signed App Store IPA without uploading it
+
+### ios beta
+
+```sh
+[bundle exec] fastlane ios beta
+```
+
+Build and upload to TestFlight without submitting for review
+
+### ios metadata
+
+```sh
+[bundle exec] fastlane ios metadata
+```
+
+Upload editable App Store metadata and screenshots
+
+### ios release
+
+```sh
+[bundle exec] fastlane ios release
+```
+
+Build, upload, and submit version 1.0 for automatic release
+
+----
+
+This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.
+
+More information about _fastlane_ can be found on [fastlane.tools](https://fastlane.tools).
+
+The documentation of _fastlane_ can be found on [docs.fastlane.tools](https://docs.fastlane.tools).

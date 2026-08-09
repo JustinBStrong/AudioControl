@@ -3,8 +3,8 @@ require "json"
 default_platform(:ios)
 
 APP_IDENTIFIER = "com.justinstrong.AudioControl"
-APP_NAME = "AudioControl"
-APP_VERSION = "1.0.0"
+APP_NAME = "AudioControl DSP"
+APP_VERSION = "1.0"
 APP_SKU = "AUDIOCONTROL-IOS-1"
 TEAM_ID = "3TKP8A48MF"
 IPA_PATH = "build/AudioControl.ipa"
@@ -42,7 +42,7 @@ def review_information
     last_name: read.call("last_name"),
     phone_number: read.call("phone_number"),
     email_address: read.call("email_address"),
-    notes: File.read("fastlane/metadata/review_information/notes.txt").strip
+    notes: File.read("fastlane/review_notes.txt").strip
   }
 end
 
@@ -139,7 +139,7 @@ platform :ios do
     upload_metadata(api_key: api_key, submit_for_review: false)
   end
 
-  desc "Build, upload, and submit version 1.0.0 for automatic release"
+  desc "Build, upload, and submit version 1.0 for automatic release"
   lane :release do
     api_key = load_api_key
     ensure_git_status_clean

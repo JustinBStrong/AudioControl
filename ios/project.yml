@@ -9,7 +9,7 @@ settings:
     SWIFT_VERSION: "5.0"
     SWIFT_STRICT_CONCURRENCY: minimal
     CURRENT_PROJECT_VERSION: 1
-    MARKETING_VERSION: 1.0.0
+    MARKETING_VERSION: 1.0
 targets:
   AudioControl:
     type: application
