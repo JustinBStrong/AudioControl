@@ -1,0 +1,5 @@
+{
+  "key_id": "XXXXXXXXXX",
+  "issuer_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+  "key_filepath": "./AuthKey_XXXXXXXXXX.p8"
+}

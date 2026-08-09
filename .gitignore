@@ -1,5 +1,19 @@
 .DS_Store
 tmp/
+build/
+
+# Local credentials and release artifacts. Keep Fastlane configuration tracked.
+.env
+.env.*
+!.env.example
+*.p8
+*.ipa
+*.xcarchive
+*.dSYM.zip
+fastlane/api_key.json
+fastlane/report.xml
+fastlane/Preview.html
+.bundle/
 
 firmware/.pio/
 firmware/build/
