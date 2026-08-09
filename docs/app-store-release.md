@@ -29,10 +29,14 @@
 - public support page at `https://justinbstrong.github.io/AudioControl/`
 - App Store Connect record `6799782013`, with storefront name
   `AudioControl DSP` and editable iOS version `1.0`
-- listing metadata, categories, age-rating answers, copyright, and all three
-  screenshots uploaded successfully; Fastlane precheck passes without warnings
-- App Privacy saved as “Data Not Collected” and awaiting the final publish
-  confirmation
+- listing metadata, categories, 4+ age-rating answers, copyright, and all three
+  screenshots uploaded successfully with Fastlane 2.237.0; precheck passes
+  without warnings
+- App Privacy published as “Data Not Collected”
+- content rights declared as no third-party content
+- free pricing configured in 175 countries and regions
+- availability configured for iPhone in all 175 countries and regions; Apple
+  Silicon Mac and Apple Vision Pro availability are disabled
 - Apple-signed Xcode 26.3 (`17C529`) installed side by side at
   `/Applications/Xcode-26.3.app`
 
@@ -42,8 +46,8 @@
 - **Subtitle:** Tune your ESP32 subwoofer
 - **Primary category:** Utilities
 - **Secondary category:** Music
-- **Age rating:** Complete the current questionnaire truthfully; the app contains no restricted content
-- **App privacy:** Select “No, we do not collect data from this app”
+- **Age rating:** 4+; no restricted content or social-media capabilities
+- **App privacy:** Published as “Data Not Collected”
 - **Description:**
 
   AudioControl configures a compatible ESP32 Audio Kit installed between a
@@ -68,11 +72,12 @@
 
 ## Still required outside the source tree
 
-1. Accept the Xcode 26.3 and Apple SDK license, then run its first-launch setup.
-2. Confirm and publish the saved “Data Not Collected” App Privacy response.
-3. Complete availability, pricing, content-rights, and EU Digital Services Act
-   declarations in App Store Connect.
-4. Build the upload archive with Xcode 26.3. Since April 28, 2026, Apple
+1. Authenticate the pending macOS administrator prompt to finish accepting the
+   Xcode 26.3 and Apple SDK agreement, then run first-launch setup.
+2. Complete the EU Digital Services Act trader-status declaration in App Store
+   Connect. This is an account-holder legal classification and must not be
+   inferred by release automation.
+3. Build the upload archive with Xcode 26.3. Since April 28, 2026, Apple
    requires iOS submissions to use the iOS 26 SDK or later.
-5. Validate the archive, upload it to TestFlight, test on a physical iPhone, and
+4. Validate the archive, upload it to TestFlight, test on a physical iPhone, and
    then explicitly submit the selected build for App Review.

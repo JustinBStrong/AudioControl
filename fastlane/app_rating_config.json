@@ -16,6 +16,8 @@
   "profanityOrCrudeHumor": "NONE",
   "sexualContentGraphicAndNudity": "NONE",
   "sexualContentOrNudity": "NONE",
+  "socialMedia": false,
+  "socialMediaAgeRestricted": false,
   "unrestrictedWebAccess": false,
   "userGeneratedContent": false,
   "violenceCartoonOrFantasy": "NONE",
