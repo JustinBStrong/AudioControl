@@ -63,6 +63,14 @@ Upload editable App Store metadata and screenshots
 
 Build, upload, and submit version 1.0 for automatic release
 
+### ios submit_existing
+
+```sh
+[bundle exec] fastlane ios submit_existing
+```
+
+Submit the already-uploaded App Store build without rebuilding it
+
 ----
 
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.

@@ -41,6 +41,13 @@
   countries
 - Apple-signed Xcode 26.3 (`17C529`) installed side by side at
   `/Applications/Xcode-26.3.app`
+- signed App Store archive built with the iOS 26.2 SDK and exported as version
+  `1.0` build `1`
+- build `1` uploaded, processed by Apple, and distributed to the internal
+  TestFlight group
+- version `1.0` submitted to App Review; Apple reports both the App Store and
+  version states as `WAITING_FOR_REVIEW`
+- release type configured as automatic after approval
 
 ## App Store Connect metadata draft
 
@@ -72,11 +79,18 @@
   visible in the app with a Stop control. A demonstration device and Mac CLI can
   be supplied if App Review requests them.
 
-## Still required outside the source tree
+## Release verification
 
-1. Authenticate the pending macOS administrator prompt to finish accepting the
-   Xcode 26.3 and Apple SDK agreement, then run first-launch setup.
-2. Build the upload archive with Xcode 26.3. Since April 28, 2026, Apple
-   requires iOS submissions to use the iOS 26 SDK or later.
-3. Validate the archive, upload it to TestFlight, test on a physical iPhone, and
-   then explicitly submit the selected build for App Review.
+- portable Swift tests: 28 of 28 passed
+- Xcode iPhone 17 Pro simulator tests: 28 of 28 passed
+- signed archive, App Store export, upload, Apple processing, and internal
+  TestFlight distribution completed successfully
+- App Store Connect API readback confirms version `1.0`, build `1`, review type
+  `APP_STORE`, and state `WAITING_FOR_REVIEW`
+
+## Remaining release work
+
+No developer action is currently required. Apple must review the submission.
+If it is approved, the app is configured to release automatically; if App
+Review asks for hardware access or clarification, respond through App Store
+Connect and submit an updated build only if necessary.
