@@ -37,6 +37,8 @@
 - free pricing configured in 175 countries and regions
 - availability configured for iPhone in all 175 countries and regions; Apple
   Silicon Mac and Apple Vision Pro availability are disabled
+- Digital Services Act status declared as non-trader and active for all 27 EU
+  countries
 - Apple-signed Xcode 26.3 (`17C529`) installed side by side at
   `/Applications/Xcode-26.3.app`
 
@@ -74,10 +76,7 @@
 
 1. Authenticate the pending macOS administrator prompt to finish accepting the
    Xcode 26.3 and Apple SDK agreement, then run first-launch setup.
-2. Complete the EU Digital Services Act trader-status declaration in App Store
-   Connect. This is an account-holder legal classification and must not be
-   inferred by release automation.
-3. Build the upload archive with Xcode 26.3. Since April 28, 2026, Apple
+2. Build the upload archive with Xcode 26.3. Since April 28, 2026, Apple
    requires iOS submissions to use the iOS 26 SDK or later.
-4. Validate the archive, upload it to TestFlight, test on a physical iPhone, and
+3. Validate the archive, upload it to TestFlight, test on a physical iPhone, and
    then explicitly submit the selected build for App Review.
